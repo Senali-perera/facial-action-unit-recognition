@@ -8,6 +8,8 @@ from PIL import Image
 
 # Import your model and loss function
 from net.resnet_multi_view import ResNet_GCN_two_views
+from visualize_facial_landmarks.facial_landmarks_detection import facial_landmarks_detection, resize
+
 # from loss.loss_multi_view_final import MultiView_all_loss
 
 app = Flask(__name__)
@@ -50,6 +52,24 @@ def allowed_file(filename):
 def transfrom_img_test(img):
     img = transform_test(img)
     return img
+
+def save_file(file):
+    filename = secure_filename(file.filename)
+    filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+    file.save(filepath)
+    return filepath
+
+
+def save_resized_img(file):
+    filename = secure_filename(file.filename)
+    filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+    file.save(filepath)
+
+    img = Image.open(filepath).convert('RGB')
+    copy_image = img.copy()
+    resized_image = resize(copy_image, 500)
+    resized_image.save(filepath)
+    return filepath
 
 # Main page with upload form
 @app.route('/')
@@ -95,9 +115,10 @@ def predict():
             'AU_fusion': AU_fusion.tolist()
         }
 
-        print(AU_fusion)
+        facial_landmarks_detection(filepath)
+        facial_landmark_file = 'images/facial_landmark_file.jpg'
 
-        return render_template('result.html', result=result, filename=filename)
+        return render_template('result.html', result=result, filename=filename, facial_landmark_file=facial_landmark_file)
 
 # Serve uploaded images
 @app.route('/uploads/<filename>')
