@@ -8,6 +8,11 @@
 <body>
     <h2>Action Unit Predictions</h2>
 
+    <h3>Model</h3>
+    <p>
+        {{ result['model'] }}
+    </p>
+
     <h3>View 1:</h3>
     <ul>
         {% for au in result['AU_view1'][0] %}
@@ -25,6 +30,13 @@
     <h3>Fusion:</h3>
     <ul>
         {% for au in result['AU_fusion'][0] %}
+            <li>{{ loop.index }}: {{ au }}</li>
+        {% endfor %}
+    </ul>
+
+    <h3>Best AUs</h3>
+    <ul>
+        {% for au in result['activated_aus'] %}
             <li>{{ loop.index }}: {{ au }}</li>
         {% endfor %}
     </ul>

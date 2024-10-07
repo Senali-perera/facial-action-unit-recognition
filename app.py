@@ -5,16 +5,17 @@ import torch
 from torch.autograd import Variable
 from torchvision import transforms
 from PIL import Image
+from torchsummary import summary
 
+from actionunits.action_unit_decision_maker import ActionUnitDecisionMaker
 # Import your model and loss function
 from net.resnet_multi_view import ResNet_GCN_two_views
 # from loss.loss_multi_view_final import MultiView_all_loss
 
 app = Flask(__name__)
 
-
 # Configuration
-UPLOAD_FOLDER = './uploads'
+UPLOAD_FOLDER = './static/uploads'
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
 
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
@@ -31,6 +32,7 @@ lambda_multi_view = 400
 # Load the model
 model_path = './model/EmotioNet_model.pth.tar'
 net = ResNet_GCN_two_views(AU_num=AU_num, AU_idx=AU_idx, output=2, fusion_mode=fusion_mode, database=database)
+print(str(summary(net, (3, 224, 224), device='cpu')))
 temp = torch.load(model_path, map_location=torch.device('cpu'), weights_only=True)
 net.load_state_dict(temp['net'])
 # net.cuda()
@@ -54,7 +56,15 @@ def transfrom_img_test(img):
 # Main page with upload form
 @app.route('/')
 def upload_file():
-    return render_template('index.html')
+    # Create a response
+    result = {
+        'AU_view1': [],
+        'AU_view2': [],
+        'AU_fusion': [],
+        'activated_aus': []
+    }
+
+    return render_template('index.html', result=result)
 
 # Handling the file upload and prediction
 @app.route('/predict', methods=['POST'])
@@ -80,6 +90,7 @@ def predict():
         img = img.view(1, img.size(0), img.size(1), img.size(2))
 
         # Make predictions
+        # AU_view1, AU_view2, AU_fusion = net(img)
         AU_view1, AU_view2, AU_fusion = net(img)
         AU_view1 = torch.sigmoid(AU_view1)
         AU_view2 = torch.sigmoid(AU_view2)
@@ -88,22 +99,26 @@ def predict():
         AU_view1 = AU_view1.cpu().detach().numpy()
         AU_view2 = AU_view2.cpu().detach().numpy()
 
+        decision = ActionUnitDecisionMaker()
+        decision.set_inputs(AU_view1[0], AU_view2[0], AU_fusion[0])
+        activated_aus = decision.get_activated_action_units()
+        activated_au_names = decision.get_activated_action_unit_names(activated_aus)
+
         # Create a response
         result = {
             'AU_view1': AU_view1.tolist(),
             'AU_view2': AU_view2.tolist(),
-            'AU_fusion': AU_fusion.tolist()
+            'AU_fusion': AU_fusion.tolist(),
+            'activated_aus': activated_au_names,
         }
 
-        print(AU_fusion)
-
-        return render_template('result.html', result=result, filename=filename)
+        return render_template('index.html', result=result, filename=filename, threshold=decision.THRESHOLD)
 
 # Serve uploaded images
 @app.route('/uploads/<filename>')
 def uploaded_file(filename):
     # return redirect(url_for('static', filename=f'uploads/{filename}'))
-    return send_from_directory('uploads', filename)
+    return send_from_directory('./static/uploads', filename)
 
 
 if __name__ == '__main__':
