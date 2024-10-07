@@ -10,6 +10,8 @@ from torchsummary import summary
 from actionunits.action_unit_decision_maker import ActionUnitDecisionMaker
 # Import your model and loss function
 from net.resnet_multi_view import ResNet_GCN_two_views
+from visualize_facial_landmarks.facial_landmarks_detection import facial_landmarks_detection, resize
+
 # from loss.loss_multi_view_final import MultiView_all_loss
 
 app = Flask(__name__)
@@ -32,7 +34,6 @@ lambda_multi_view = 400
 # Load the model
 model_path = './model/EmotioNet_model.pth.tar'
 net = ResNet_GCN_two_views(AU_num=AU_num, AU_idx=AU_idx, output=2, fusion_mode=fusion_mode, database=database)
-print(str(summary(net, (3, 224, 224), device='cpu')))
 temp = torch.load(model_path, map_location=torch.device('cpu'), weights_only=True)
 net.load_state_dict(temp['net'])
 # net.cuda()
@@ -52,6 +53,24 @@ def allowed_file(filename):
 def transfrom_img_test(img):
     img = transform_test(img)
     return img
+
+def save_file(file):
+    filename = secure_filename(file.filename)
+    filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+    file.save(filepath)
+    return filepath
+
+
+def save_resized_img(file):
+    filename = secure_filename(file.filename)
+    filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+    file.save(filepath)
+
+    img = Image.open(filepath).convert('RGB')
+    copy_image = img.copy()
+    resized_image = resize(copy_image, 500)
+    resized_image.save(filepath)
+    return filepath
 
 # Main page with upload form
 @app.route('/')
@@ -112,7 +131,10 @@ def predict():
             'activated_aus': activated_au_names,
         }
 
-        return render_template('index.html', result=result, filename=filename, threshold=decision.THRESHOLD)
+        facial_landmarks_detection(filepath)
+        facial_landmark_file = 'images/facial_landmark_file.jpg'
+
+        return render_template('index.html', result=result, filename=filename, facial_landmark_file=facial_landmark_file)
 
 # Serve uploaded images
 @app.route('/uploads/<filename>')
