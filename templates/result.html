@@ -8,28 +8,53 @@
 <body>
     <h2>Action Unit Predictions</h2>
 
-    <h3>View 1:</h3>
-    <ul>
-        {% for au in result['AU_view1'][0] %}
-            <li>{{ loop.index }}: {{ au }}</li>
-        {% endfor %}
-    </ul>
+    <!-- View 1 and View 2 -->
+    <div style="display: flex; margin-bottom: 40px; margin-left: 20px;">
+         <!-- View 1 -->
+        <div style="flex: 1; margin-right: 20px;">
+            <h3>View 1:</h3>
+            <div>
+                {% for AU_name, value in result['AU_view1'].items() %}
+                    <div style="display: grid; grid-template-columns: auto auto; gap: 5px; margin-bottom: 5px;">
+                        <span>{{ AU_name }}:</span>
+                        <span style="text-align: right;">{{ value }}</span>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
 
-    <h3>View 2:</h3>
-    <ul>
-        {% for au in result['AU_view2'][0] %}
-            <li>{{ loop.index }}: {{ au }}</li>
-        {% endfor %}
-    </ul>
+        <!-- View 2 -->
+        <div style="flex: 1; margin-right: 20px; margin-left: 20px;">
+            <h3>View 2:</h3>
+            <div>
+                {% for AU_name, value in result['AU_view2'].items() %}
+                    <div style="display: grid; grid-template-columns: auto auto; gap: 5px; margin-bottom: 5px;">
+                        <span>{{ AU_name }}:</span>
+                        <span style="text-align: right;">{{ value }}</span>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
 
-    <h3>Fusion:</h3>
-    <ul>
-        {% for au in result['AU_fusion'][0] %}
-            <li>{{ loop.index }}: {{ au }}</li>
-        {% endfor %}
-    </ul>
+    <!-- Fusion View -->
+    <div style="display: flex; justify-content: space-between; margin-top: 20px; margin-left: 20px;">
+        <div>
+            <h3>Fusion:</h3>
+            <div>
+                {% for au in result['AU_fusion'][0] %}
+                    <div style="display: grid; grid-template-columns: auto auto; gap: 5px; margin-bottom: 5px;">
+                        <span>{{ loop.index }}:</span>
+                        <span style="text-align: right;">{{ au }}</span>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
 
-    <img src="{{ url_for('uploaded_file', filename=filename) }}" alt="Uploaded Image">
-
+        <!-- Image View -->
+        <div style="width: 400px; height: 400px;">
+            <img src="{{ url_for('uploaded_file', filename=filename) }}" alt="Uploaded Image" style="width: 100%; height: 100%; object-fit: contain;">
+        </div>
+    </div>
 </body>
 </html>

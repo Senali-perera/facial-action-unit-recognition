@@ -88,14 +88,38 @@ def predict():
         AU_view1 = AU_view1.cpu().detach().numpy()
         AU_view2 = AU_view2.cpu().detach().numpy()
 
+        # Define Action Unit names
+        AU_names = {
+            1: "1. Inner Brow Raiser AU1",
+            2: "2. Outer Brow Raiser AU2",
+            3: "3. Brow Lowerer AU4",
+            4: "4. Upper Lid Raiser AU5",
+            5: "5. Cheek Raiser AU6",
+            6: "6. Nose Wrinkler AU9",
+            7: "7. Lip Corner Puller AU12",
+            8: "8. Chin Raiser AU17",
+            9: "9. Lip Stretcher AU20",
+            10: "10. Lips part AU25",
+            11: "11. Jaw Drop AU26",
+            12: "12. Eyes Closed AU43"
+        }
+
         # Create a response
         result = {
-            'AU_view1': AU_view1.tolist(),
-            'AU_view2': AU_view2.tolist(),
+            'AU_view1': {AU_names[i+1]: AU_view1[0][i] for i in range(len(AU_view1[0]))},
+            'AU_view2': {AU_names[i+1]: AU_view2[0][i] for i in range(len(AU_view2[0]))},
             'AU_fusion': AU_fusion.tolist()
         }
 
         print(AU_fusion)
+
+        # format decimal places:
+        fmt_AU_view1 = {AU_name: f"{value:.8f}" for AU_name, value in result['AU_view1'].items()}
+        fmt_AU_view2 = {AU_name: f"{value:.8f}" for AU_name, value in result['AU_view2'].items()}
+
+        # Update the result to formatted values
+        result['AU_view1'] = fmt_AU_view1
+        result['AU_view2'] = fmt_AU_view2
 
         return render_template('result.html', result=result, filename=filename)
 
