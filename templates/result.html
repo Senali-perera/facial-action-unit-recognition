@@ -8,6 +8,11 @@
 <body>
     <h2>Action Unit Predictions</h2>
 
+    <h3>Model</h3>
+    <p>
+        {{ result['model'] }}
+    </p>
+
     <h3>View 1:</h3>
     <ul>
         {% for au in result['AU_view1'][0] %}
@@ -29,7 +34,16 @@
         {% endfor %}
     </ul>
 
+    <h3>Best AUs</h3>
+    <ul>
+        {% for au in result['activated_aus'] %}
+            <li>{{ loop.index }}: {{ au }}</li>
+        {% endfor %}
+    </ul>
+
     <img src="{{ url_for('uploaded_file', filename=filename) }}" alt="Uploaded Image">
+
+    <img src="{{ url_for('static', filename=facial_landmark_file) }}" alt="Uploaded Image with facial landmarks">
 
 </body>
 </html>
