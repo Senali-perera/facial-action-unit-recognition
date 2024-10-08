@@ -5,16 +5,18 @@ import cv2
 import numpy as np
 from PIL import Image
 
+from au_types.action_unit import ActionUnit
+
 # define a dictionary that maps the indexes of the facial
 FACIAL_LANDMARKS_IDXS = OrderedDict([
-    ("mouth", (48, 68)),
+    ("mouth", ((48, 68), [ActionUnit.AU12, ActionUnit.AU20, ActionUnit.AU25])),
     # ("inner_mouth", (60, 68)),
-    ("right_eyebrow", (17, 22)),
-    ("left_eyebrow", (22, 27)),
-    ("right_eye", (36, 42)),
-    ("left_eye", (42, 48)),
-    ("nose", (27, 36)),
-    # ("jaw", (0, 17))
+    ("right_eyebrow", ((17, 22), [ActionUnit.AU1, ActionUnit.AU2, ActionUnit.AU4])),
+    ("left_eyebrow", ((22, 27), [ActionUnit.AU1, ActionUnit.AU2, ActionUnit.AU4])),
+    ("right_eye", ((36, 42), [ActionUnit.AU5, ActionUnit.AU43])),
+    ("left_eye", ((42, 48), [ActionUnit.AU5, ActionUnit.AU43])),
+    ("nose", ((27, 36), [ActionUnit.AU9])),
+    ("jaw", ((0, 17), [ActionUnit.AU6, ActionUnit.AU17, ActionUnit.AU26]))
 ])
 
 
@@ -37,19 +39,21 @@ def resize(image, width, inter=cv2.INTER_AREA):
     return resized
 
 
-def visualize_facial_landmarks(image, shape):
+def visualize_facial_landmarks(image, shape, activated_AUs):
     output = image.copy()
 
-    for (name, (i, j)) in FACIAL_LANDMARKS_IDXS.items():
-        (x, y, w, h) = cv2.boundingRect(np.array([shape[i:j]]))
-        if w > 0 and h > 0:
-            cv2.rectangle(output, (x, y), (x + w, y + h), (0, 255, 0), 2)
+    for (name, ((i, j), action_units)) in FACIAL_LANDMARKS_IDXS.items():
+        action_unit_values = [au.value for au in action_units]
+        if any(au in activated_AUs for au in action_unit_values):
+            (x, y, w, h) = cv2.boundingRect(np.array([shape[i:j]]))
+            if w > 0 and h > 0:
+                cv2.rectangle(output, (x, y), (x + w, y + h), (0, 255, 0), 2)
 
     # return the output image
     return output
 
 
-def facial_landmarks_detection(image):
+def facial_landmarks_detection(image, activated_AUs):
     # initialize dlib's face detector and then predict the facial landmarks
     detector = dlib.get_frontal_face_detector()
     predictor = dlib.shape_predictor('./visualize_facial_landmarks/shape_predictor_68_face_landmarks.dat')
@@ -78,7 +82,7 @@ def facial_landmarks_detection(image):
         shape = coords
 
         # visualize all facial landmarks
-        output = visualize_facial_landmarks(resized_image, shape)
+        output = visualize_facial_landmarks(resized_image, shape, activated_AUs)
         if not os.path.exists('./static/images/'):
             os.makedirs('./static/images/')
         cv2.imwrite('./static/images/facial_landmark_file.jpg', output)
