@@ -476,6 +476,13 @@
                                         <p>No image selected</p>
                                     {% endif %}
                                 </div>
+                                <div class="card-body">
+                                    {% if facial_landmark_file %}
+                                        <img src="{{ url_for('static', filename=facial_landmark_file) }}" alt="Uploaded Image with facial landmarks" style="width: 500px; height: auto;">
+                                    {% else %}
+                                        <p>No image selected</p>
+                                    {% endif %}
+                                </div>
                             </div>
                         </div> <!-- /.Start col -->
                     </div> <!-- /.row (main row) -->

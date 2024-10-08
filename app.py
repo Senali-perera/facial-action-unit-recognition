@@ -5,7 +5,6 @@ import torch
 from torch.autograd import Variable
 from torchvision import transforms
 from PIL import Image
-from torchsummary import summary
 
 from actionunits.action_unit_decision_maker import ActionUnitDecisionMaker
 # Import your model and loss function
