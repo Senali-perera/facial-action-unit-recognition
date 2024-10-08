@@ -130,7 +130,7 @@ def predict():
             'activated_aus': activated_au_names,
         }
 
-        facial_landmarks_detection(filepath)
+        facial_landmarks_detection(filepath, list(activated_aus.keys()))
         facial_landmark_file = 'images/facial_landmark_file.jpg'
 
         return render_template('index.html', result=result, filename=filename, facial_landmark_file=facial_landmark_file)
