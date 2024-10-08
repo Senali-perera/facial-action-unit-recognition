@@ -79,6 +79,8 @@ def facial_landmarks_detection(image):
 
         # visualize all facial landmarks
         output = visualize_facial_landmarks(resized_image, shape)
+        if not os.path.exists('./static/images/'):
+            os.makedirs('./static/images/')
         cv2.imwrite('./static/images/facial_landmark_file.jpg', output)
         # cv2.imshow("Image", output)
         # cv2.waitKey(0)

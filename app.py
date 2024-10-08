@@ -6,6 +6,7 @@ from torch.autograd import Variable
 from torchvision import transforms
 from PIL import Image
 
+from actionunits.action_unit_decision_maker import ActionUnitDecisionMaker
 # Import your model and loss function
 from net.resnet_multi_view import ResNet_GCN_two_views
 from visualize_facial_landmarks.facial_landmarks_detection import facial_landmarks_detection, resize
@@ -14,9 +15,8 @@ from visualize_facial_landmarks.facial_landmarks_detection import facial_landmar
 
 app = Flask(__name__)
 
-
 # Configuration
-UPLOAD_FOLDER = './uploads'
+UPLOAD_FOLDER = './static/uploads'
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
 
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
@@ -74,7 +74,15 @@ def save_resized_img(file):
 # Main page with upload form
 @app.route('/')
 def upload_file():
-    return render_template('index.html')
+    # Create a response
+    result = {
+        'AU_view1': [],
+        'AU_view2': [],
+        'AU_fusion': [],
+        'activated_aus': []
+    }
+
+    return render_template('index.html', result=result)
 
 # Handling the file upload and prediction
 @app.route('/predict', methods=['POST'])
@@ -100,6 +108,7 @@ def predict():
         img = img.view(1, img.size(0), img.size(1), img.size(2))
 
         # Make predictions
+        # AU_view1, AU_view2, AU_fusion = net(img)
         AU_view1, AU_view2, AU_fusion = net(img)
         AU_view1 = torch.sigmoid(AU_view1)
         AU_view2 = torch.sigmoid(AU_view2)
@@ -108,23 +117,29 @@ def predict():
         AU_view1 = AU_view1.cpu().detach().numpy()
         AU_view2 = AU_view2.cpu().detach().numpy()
 
+        decision = ActionUnitDecisionMaker()
+        decision.set_inputs(AU_view1[0], AU_view2[0], AU_fusion[0])
+        activated_aus = decision.get_activated_action_units()
+        activated_au_names = decision.get_activated_action_unit_names(activated_aus)
+
         # Create a response
         result = {
             'AU_view1': AU_view1.tolist(),
             'AU_view2': AU_view2.tolist(),
-            'AU_fusion': AU_fusion.tolist()
+            'AU_fusion': AU_fusion.tolist(),
+            'activated_aus': activated_au_names,
         }
 
         facial_landmarks_detection(filepath)
         facial_landmark_file = 'images/facial_landmark_file.jpg'
 
-        return render_template('result.html', result=result, filename=filename, facial_landmark_file=facial_landmark_file)
+        return render_template('index.html', result=result, filename=filename, facial_landmark_file=facial_landmark_file)
 
 # Serve uploaded images
 @app.route('/uploads/<filename>')
 def uploaded_file(filename):
     # return redirect(url_for('static', filename=f'uploads/{filename}'))
-    return send_from_directory('uploads', filename)
+    return send_from_directory('./static/uploads', filename)
 
 
 if __name__ == '__main__':
