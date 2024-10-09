@@ -224,13 +224,6 @@
                                     <h3 class="card-title">Selected Image</h3>
                                 </div>
                                 <div class="card-body">
-                                    {% if filename %}
-                                        <img src="{{ url_for('uploaded_file', filename=filename) }}" alt="Uploaded Image" style="width: 500px; height: auto;">
-                                    {% else %}
-                                        <p>No image selected</p>
-                                    {% endif %}
-                                </div>
-                                <div class="card-body">
                                     {% if facial_landmark_file %}
                                         <img src="{{ url_for('static', filename=facial_landmark_file) }}" alt="Uploaded Image with facial landmarks" style="width: 500px; height: auto;">
                                     {% else %}
