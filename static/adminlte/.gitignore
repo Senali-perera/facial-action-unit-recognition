@@ -1,5 +1,4 @@
 # build output
-dist/
 
 # generated au_types
 .astro/
@@ -41,3 +40,6 @@ TODO
 test.html
 ad.js
 /.cache/
+
+./model/EmotioNet_model.pth.tar
+./visualize_facial_landmarks/shape_predictor_68_face_landmarks.dat
