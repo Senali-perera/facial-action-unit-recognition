@@ -15,31 +15,18 @@
 
     <h3>View 1:</h3>
     <ul>
-        {% for au in result['AU_view1'][0] %}
-            <li>{{ loop.index }}: {{ au }}</li>
+        {% for au,value in result['AU_view1'].items() %}
+            <li>{{ au }}: {{ value }}</li>
         {% endfor %}
     </ul>
 
-        <!-- View 2 -->
-        <div style="flex: 1; margin-right: 20px; margin-left: 20px;">
-            <h3>View 2:</h3>
-            <div>
-                {% for AU_name, value in result['AU_view2'].items() %}
-                    <div style="display: grid; grid-template-columns: auto auto; gap: 5px; margin-bottom: 5px;">
-                        <span>{{ AU_name }}:</span>
-                        <span style="text-align: right;">{{ value }}</span>
-                    </div>
-                {% endfor %}
-            </div>
-        </div>
-    </div>
-
-    <h3>Fusion:</h3>
+    <h3>View 2:</h3>
     <ul>
-        {% for au in result['AU_fusion'][0] %}
-            <li>{{ loop.index }}: {{ au }}</li>
+        {% for au,value in result['AU_view2'].items() %}
+            <li>{{ au }}: {{ value }}</li>
         {% endfor %}
     </ul>
+
 
     <h3>Best AUs</h3>
     <ul>

@@ -122,10 +122,26 @@ def predict():
         activated_aus = decision.get_activated_action_units()
         activated_au_names = decision.get_activated_action_unit_names(activated_aus)
 
+        # Define Action Unit names
+        AU_names = {
+            1: "1. Inner Brow Raiser AU1",
+            2: "2. Outer Brow Raiser AU2",
+            3: "3. Brow Lowerer AU4",
+            4: "4. Upper Lid Raiser AU5",
+            5: "5. Cheek Raiser AU6",
+            6: "6. Nose Wrinkler AU9",
+            7: "7. Lip Corner Puller AU12",
+            8: "8. Chin Raiser AU17",
+            9: "9. Lip Stretcher AU20",
+            10: "10. Lips part AU25",
+            11: "11. Jaw Drop AU26",
+            12: "12. Eyes Closed AU43"
+        }
+
         # Create a response
         result = {
-            'AU_view1': AU_view1.tolist(),
-            'AU_view2': AU_view2.tolist(),
+            'AU_view1': {AU_names[i+1]: AU_view1[0][i] for i in range(len(AU_view1[0]))},
+            'AU_view2': {AU_names[i+1]: AU_view2[0][i] for i in range(len(AU_view2[0]))},
             'AU_fusion': AU_fusion.tolist(),
             'activated_aus': activated_au_names,
         }
