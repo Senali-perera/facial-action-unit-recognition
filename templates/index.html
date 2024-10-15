@@ -151,7 +151,7 @@
                             <button type='submit' class="btn btn-primary" style="width: 300px; margin: 20px 20px"> Upload Image</button>
                         </form>
                     </div> <!--end::Row--> <!--begin::Row-->
-                    {% if result['AU_view1'][0]|length > 0 %}
+                    {% if result['AU_view1'] %}
                         <div class="row">
                                 <div class="col-lg-5 connectedSortable" style="width: 100%">
                                 <!-- Image Display Card -->
@@ -179,31 +179,30 @@
                             <div class="card mb-4">
                                 <!-- Card Header -->
                                 <div class="card-header">
-                                    <h3 class="card-title">View 1</h3>
+                                    <h3 class="card-title">Prediction Results</h3>
                                 </div>
 
                                 <!-- Card Body -->
                                 <div class="card-body">
                                     <!-- Table -->
-                                    <table class="table table-bordered">
+                                    <table class="table table-bordered" style="table-layout: fixed; width: 100%;">
                                         <thead>
                                             <tr>
-                                                <th style="width: 10px">#</th>
-                                                <th>View1</th>
-                                                <th>View2</th>
-                                                <th>Fusion</th>
+                                                <th style="width: 33.33%">Action Unit Type</th>
+                                                <th style="width: 33.33%">View1</th>
+                                                <th style="width: 33.33%">View2</th>
+                        
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            {% if result['AU_view1']|length > 0 %}
-                                                {% for idx in range(result['AU_view1'][0]|length) %}
+                                            {% if result['AU_view1'] %}
+                                                {% for au_key in result['AU_view1'].keys() %}
                                                     <tr>
-                                                        <td>{{ idx }}</td>
-                                                        <td>{{ result['AU_view1'][0][idx] }}</td>
-                                                        <td>{{ result['AU_view2'][0][idx] }}</td>
-                                                        <td>{{ result['AU_fusion'][0][idx] }}</td>
+                                                        <td>{{ au_key }}</td>
+                                                        <td>{{ result['AU_view1'][au_key] }}</td>
+                                                        <td>{{ result['AU_view2'][au_key] }}</td>
                                                     </tr>
-                                                {% endfor %}
+                                                {% endfor %}        
                                             {% else %}
                                                 <tr>
                                                     <td colspan="4">No data</td>
