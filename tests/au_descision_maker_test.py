@@ -16,7 +16,7 @@ class AUDecisionMakerTests(TestCase):
 
         print("test", self.decision_maker.view1)
 
-        self.decision_maker.best_representative()
+        self.decision_maker.best_representative_dynamic_threshold()
 
         selected_au = self.decision_maker.get_activated_action_units()
 

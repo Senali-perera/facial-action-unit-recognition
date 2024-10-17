@@ -7,6 +7,7 @@ from torchvision import transforms
 from PIL import Image
 
 from actionunits.action_unit_decision_maker import ActionUnitDecisionMaker
+from emotion.emotions import EmotionRecognizer
 # Import your model and loss function
 from net.resnet_multi_view import ResNet_GCN_two_views
 from visualize_facial_landmarks.facial_landmarks_detection import facial_landmarks_detection, resize
@@ -46,12 +47,15 @@ transform_test = transforms.Compose([
     transforms.Normalize((0.5355, 0.4249, 0.3801), (0.2832, 0.2578, 0.2548)),
 ])
 
+
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
 
 def transfrom_img_test(img):
     img = transform_test(img)
     return img
+
 
 def save_file(file):
     filename = secure_filename(file.filename)
@@ -71,6 +75,7 @@ def save_resized_img(file):
     resized_image.save(filepath)
     return filepath
 
+
 # Main page with upload form
 @app.route('/')
 def upload_file():
@@ -83,6 +88,7 @@ def upload_file():
     }
 
     return render_template('index.html', result=result)
+
 
 # Handling the file upload and prediction
 @app.route('/predict', methods=['POST'])
@@ -122,6 +128,9 @@ def predict():
         activated_aus = decision.get_activated_action_units()
         activated_au_names = decision.get_activated_action_unit_names(activated_aus)
 
+        emotion = EmotionRecognizer()
+        person_face_emotion = emotion.get_emotion(activated_aus)
+
         # Define Action Unit names
         AU_names = {
             1: "1. Inner Brow Raiser AU1",
@@ -140,8 +149,8 @@ def predict():
 
         # Create a response
         result = {
-            'AU_view1': {AU_names[i+1]: AU_view1[0][i] for i in range(len(AU_view1[0]))},
-            'AU_view2': {AU_names[i+1]: AU_view2[0][i] for i in range(len(AU_view2[0]))},
+            'AU_view1': {AU_names[i + 1]: AU_view1[0][i] for i in range(len(AU_view1[0]))},
+            'AU_view2': {AU_names[i + 1]: AU_view2[0][i] for i in range(len(AU_view2[0]))},
             'AU_fusion': AU_fusion.tolist(),
             'activated_aus': activated_au_names,
         }
@@ -149,7 +158,11 @@ def predict():
         facial_landmarks_detection(filepath, list(activated_aus.keys()))
         facial_landmark_file = 'images/facial_landmark_file.jpg'
 
-        return render_template('index.html', result=result, filename=filename, facial_landmark_file=facial_landmark_file)
+        return render_template('index.html', result=result,
+                               filename=filename,
+                               facial_landmark_file=facial_landmark_file,
+                               emotion=person_face_emotion)
+
 
 # Serve uploaded images
 @app.route('/uploads/<filename>')
