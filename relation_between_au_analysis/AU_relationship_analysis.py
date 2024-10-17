@@ -53,7 +53,6 @@ AU_values = {
     }
 
 def get_all_file_paths(directory):
-    print(directory)
     return [str(file) for file in Path(directory).rglob('*') if file.is_file()]
 
 def predict_AU():
